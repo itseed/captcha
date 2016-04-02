@@ -8,5 +8,6 @@ before_script:
     - export TZ='UTC'
     - composer self-update
     - composer update
+    - phpenv config-add mongoconfig.ini
 script:
   ./vendor/bin/phpunit --testsuite UnitTest
