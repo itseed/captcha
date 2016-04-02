@@ -1,33 +1,35 @@
 <?php
 class RedisAccesslogTest extends PHPUnit_Framework_TestCase {
-  var $dummy_host = "0.0.0.0";
-  var $dummy_not_existing_host = "0.0.0.0";
-  var $dummy_port = "6380";
-
-  private function getMockPredis() {
-    $predis = $this->getMock('Predis', array('ping'));
-    return $predis;
+  public function setUp() {
+    $this->predis = $this->getMock('Predis', array('ping', 'set'));
   }
 
-  public function testConnectRedisShouldReturnTrue() {
-    $predis = $this->getMockPredis();
-    $predis->expects($this->once())->method('ping')->will($this->returnValue("something"));
+  public function testConnectToExistingRedisShouldReturnTrue() {
+    $this->predis->expects($this->once())->method('ping')->will($this->returnValue("something"));
 
-    $redisAccesslog = new RedisAccesslog($predis);
+    $redisAccesslog = new RedisAccesslog($this->predis);
     $this->assertTrue($redisAccesslog->connect());
   }
 
   public function testConnectToNotExistingRedisShouldReturnFalse() {
-    $predis = $this->getMockPredis();
-    $predis->expects($this->once())->method('ping')->will($this->throwException(new Exception));
+    $this->predis->expects($this->once())->method('ping')->will($this->throwException(new Exception));
 
-    $redisAccesslog = new RedisAccesslog($predis);
+    $redisAccesslog = new RedisAccesslog($this->predis);
     $this->assertFalse($redisAccesslog->connect());
   }
 
-  public function testWriteLogShouldReturnTrue() {
-    $redisAccesslog = new RedisAccesslog($this->dummy_host, $this->dummy_port);
-    $this->assertTrue($redisAccesslog->info());
+  public function testWriteLogWithValidCmdShouldReturnTrue() {
+    $this->predis->expects($this->once())->method('set')->will($this->returnValue("something"));
+
+    $redisAccesslog = new RedisAccesslog($this->predis);
+    $this->assertTrue($redisAccesslog->info("this is a log"));
+  }
+
+  public function testWriteLogWithInvalidCmdShouldReturnFalse() {
+    $this->predis->expects($this->once())->method('set')->will($this->throwException(new Exception));
+
+    $redisAccesslog = new RedisAccesslog($this->predis);
+    $this->assertFalse($redisAccesslog->info("this is a log"));
   }
 
 }

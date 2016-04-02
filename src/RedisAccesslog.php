@@ -12,7 +12,13 @@ class RedisAccesslog {
     return true;
   }
 
-  public function info() {
+  public function info($msg) {
+    $key = "log";
+    try {
+      $this->predis->set($key, $msg);
+    } catch (Exception $e) {
+        return false;
+    }
     return true;
   }
 }
