@@ -9,7 +9,12 @@ class AccessLogMongo {
   }
 
   public function isConnected() {
-    return $this->mongo->connected;
+    if ($this->mongo->getConnections()) {
+      return true;
+    } else {
+        return false;
+    }
+
   }
 
   public function info($ip, $dateTime, $URL, $UserAgent) {
