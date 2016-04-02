@@ -3,7 +3,7 @@ class AccessLogMongo {
 
   var $mongo;
   public function __construct() {
-    $this->mongo = new MongoClient("localhost");
+    $this->mongo = new MongoClient("127.0.0.1");
     $this->db = $this->mongo->selectDB("Captcha");
     $this->collection = $this->db->AccessLog;
   }
